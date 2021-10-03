@@ -1,0 +1,65 @@
+import cv2 as cv
+
+# Reading images
+
+cv.imread('Phots/cat.jpg') # takes in path to an image, returns image as matrix of pixels
+
+cv.imshow('Cat', img) # displays image as new window
+
+cv.waitKey(0) # waits for key to be pressed
+
+# Reading videos
+
+capture = cv.VideoCapture(0) # webcam referenced by using integer 0, 1 would reference aother camera, 2 woulf reference another cam etc...
+capture = cv.VideoCapture('Videos/dog.mp4') # capture is an instance of VideoCapture class
+
+while True:
+    isTrue = capture.read() #reads video frame by frame, returns boolean to say whether frame was successfully read or not
+    cv.imshow('Video', frame)
+
+    if cv.waitKey(20) & 0xFF==ord('d'): #if letter d is pressed, break out of loop and stop displaying video
+        break
+
+    capture.release()
+    cv.destroyAllWindows()
+
+
+# Resizing and rescaling frames (to prevent computational strain)
+# Rescaling video = modifying heigth and width to a particular height and width (downscale to smaller value)
+
+def rescaleFrame(frame, scale = 0.75):
+    # Images, Videos, and Live Video
+    width = int(frame.shape[1] * scale)  # width of your frame
+    height = int(frame.shape[0] * scale) #height of your frame
+
+    dimensions = (width, height)
+
+    return cv.resize(frame, dimensions, interpolation = cv.INTER_AREA) #resizes frame tto particular dimension
+
+
+resized_image = rescaleFrame(img)
+cv.imshow('Image', resized_img)
+
+def changeRes(width, height):
+    # Live video (video going on currently, webcam)
+    capture.set(3, width)
+    capture.set(4,height)
+    
+# Reading videos
+
+capture = cv.VideoCapture(0) # webcam referenced by using integer 0, 1 would reference aother camera, 2 woulf reference another cam etc...
+capture = cv.VideoCapture('Videos/dog.mp4') # capture is an instance of VideoCapture class
+
+while True:
+    isTrue = capture.read() #reads video frame by frame, returns boolean to say whether frame was successfully read or not
+
+    frame_resized = rescaleFrame(frame, scale=.2) #rescaling to 20%
+
+    cv.imshow('Video', frame)
+    cv.imshow('Video Resized', frame_resized)
+
+    if cv.waitKey(20) & 0xFF==ord('d'): #if letter d is pressed, break out of loop and stop displaying video
+        break
+
+    capture.release()
+    cv.destroyAllWindows()
