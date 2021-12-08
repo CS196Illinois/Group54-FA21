@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 # spotify python api imports
 import spotipy
@@ -6,11 +6,16 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 # imports for graphing and spotify api
 import matplotlib.pyplot as plt
+plt.switch_backend('Agg')
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 import spotipy as sp
 import pandas as pd
+import io 
+import base64
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 app = Flask(__name__)
 
@@ -105,7 +110,22 @@ def bruh():
         toReturn += "Emotions associated with your music are average, slightly on the happier side. Your average valance is " + str(avgValence)
     else:
         toReturn += "Emotions associated with your music are very happy and hype. Your average valance is " + str(avgValence)
-        
-    return f"<p>{toReturn}</p>"
+    
+    # putting data into the graph and displaying it
+    fig = Figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.bar(songsForEmotion, graphHeight, color=colorsForEmotion)
+    # ax.bar.set_title(toReturn + '\nEmotions of Your Music Depicted Through Colors')
+    # ax.bar.set_xlabel(("Track # in Playlist"))
+
+    # Convert plot to PNG image
+    pngImage = io.BytesIO()
+    FigureCanvas(fig).print_png(pngImage)
+    
+    # Encode PNG image to base64 string
+    pngImageB64String = "data:image/png;base64,"
+    pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
+    
+    return render_template("image.html", image=pngImageB64String, text=toReturn)
 
 app.run()
